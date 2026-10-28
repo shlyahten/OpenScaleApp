@@ -8,10 +8,15 @@ import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.Build
 import androidx.core.content.ContextCompat
+import androidx.core.location.LocationManagerCompat
 import com.example.chipseascaleapp.model.ScaleMeasurement
 import com.example.chipseascaleapp.parser.ChipseaScaleParser
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -25,6 +30,7 @@ sealed interface BleScannerState {
     object Idle : BleScannerState
     object Scanning : BleScannerState
     object BluetoothDisabled : BleScannerState
+    object LocationDisabled : BleScannerState
     object MissingPermissions : BleScannerState
     data class Error(val message: String) : BleScannerState
 }
@@ -44,18 +50,85 @@ class BleScaleScanner(private val context: Context) : ScaleScanner {
     override val measurements: SharedFlow<ScaleMeasurement> = _measurements.asSharedFlow()
 
     private var activeCallback: ScanCallback? = null
+    private var isReceiverRegistered = false
+
+    private val stateReceiver = object : BroadcastReceiver() {
+        override fun onReceive(ctx: Context?, intent: Intent?) {
+            when (intent?.action) {
+                BluetoothAdapter.ACTION_STATE_CHANGED -> {
+                    val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
+                    when (state) {
+                        BluetoothAdapter.STATE_OFF, BluetoothAdapter.STATE_TURNING_OFF -> {
+                            stopScan()
+                            _scannerState.value = BleScannerState.BluetoothDisabled
+                        }
+                        BluetoothAdapter.STATE_ON -> {
+                            if (_scannerState.value is BleScannerState.BluetoothDisabled) {
+                                _scannerState.value = BleScannerState.Idle
+                            }
+                        }
+                    }
+                }
+                LocationManager.MODE_CHANGED_ACTION -> {
+                    if (!isLocationEnabled() && _scannerState.value is BleScannerState.Scanning) {
+                        stopScan()
+                        _scannerState.value = BleScannerState.LocationDisabled
+                    }
+                }
+            }
+        }
+    }
+
+    init {
+        registerStateReceiver()
+    }
+
+    private fun registerStateReceiver() {
+        if (!isReceiverRegistered) {
+            val filter = IntentFilter().apply {
+                addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
+                addAction(LocationManager.MODE_CHANGED_ACTION)
+            }
+            try {
+                context.registerReceiver(stateReceiver, filter)
+                isReceiverRegistered = true
+            } catch (_: Exception) {
+            }
+        }
+    }
+
+    fun unregisterStateReceiver() {
+        if (isReceiverRegistered) {
+            try {
+                context.unregisterReceiver(stateReceiver)
+            } catch (_: Exception) {
+            } finally {
+                isReceiverRegistered = false
+            }
+        }
+    }
 
     override fun hasRequiredPermissions(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED
+            ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
         } else {
-            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
         }
     }
 
     override fun isBluetoothEnabled(): Boolean {
-        return bluetoothAdapter?.isEnabled == true
+        return try {
+            bluetoothAdapter?.isEnabled == true
+        } catch (_: SecurityException) {
+            false
+        }
+    }
+
+    override fun isLocationEnabled(): Boolean {
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?: return false
+        return LocationManagerCompat.isLocationEnabled(locationManager)
     }
 
     @SuppressLint("MissingPermission")
@@ -66,9 +139,13 @@ class BleScaleScanner(private val context: Context) : ScaleScanner {
             return
         }
 
-        val adapter = bluetoothAdapter
-        if (adapter == null || !adapter.isEnabled) {
+        if (!isBluetoothEnabled()) {
             _scannerState.value = BleScannerState.BluetoothDisabled
+            return
+        }
+
+        if (!isLocationEnabled()) {
+            _scannerState.value = BleScannerState.LocationDisabled
             return
         }
 
@@ -87,7 +164,7 @@ class BleScaleScanner(private val context: Context) : ScaleScanner {
         val scanCallback = object : ScanCallback() {
             override fun onScanResult(callbackType: Int, result: ScanResult?) {
                 result?.scanRecord?.let { record ->
-                    val measurement = ChipseaScaleParser.parse(record)
+                    val measurement = ChipseaScaleParser.parse(record, result.device?.address)
                     if (measurement != null) {
                         _measurements.tryEmit(measurement)
                     }
@@ -97,7 +174,7 @@ class BleScaleScanner(private val context: Context) : ScaleScanner {
             override fun onBatchScanResults(results: MutableList<ScanResult>?) {
                 results?.forEach { result ->
                     result.scanRecord?.let { record ->
-                        val measurement = ChipseaScaleParser.parse(record)
+                        val measurement = ChipseaScaleParser.parse(record, result.device?.address)
                         if (measurement != null) {
                             _measurements.tryEmit(measurement)
                         }
@@ -134,14 +211,16 @@ class BleScaleScanner(private val context: Context) : ScaleScanner {
     override fun stopScan() {
         val callback = activeCallback ?: return
         try {
-            if (hasRequiredPermissions() && bluetoothAdapter?.isEnabled == true) {
+            if (hasRequiredPermissions() && isBluetoothEnabled()) {
                 leScanner?.stopScan(callback)
             }
         } catch (_: Exception) {
             // Ignore clean-up errors
         } finally {
             activeCallback = null
-            _scannerState.value = BleScannerState.Idle
+            if (_scannerState.value is BleScannerState.Scanning) {
+                _scannerState.value = BleScannerState.Idle
+            }
         }
     }
 

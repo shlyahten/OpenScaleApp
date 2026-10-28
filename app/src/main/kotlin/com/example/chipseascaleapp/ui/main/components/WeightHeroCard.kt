@@ -79,9 +79,10 @@ fun WeightHeroCard(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Main Weight Display
-            val weightText = measurement?.let { String.format(Locale.US, "%.2f", it.weightKg) } ?: "--.--"
+            val weightText = measurement?.let { String.format(Locale.US, "%.2f", it.displayWeight) } ?: "--.--"
             val unitText = when (measurement?.unit) {
                 WeightUnit.LB -> "фунт"
+                WeightUnit.ST -> "ст"
                 else -> "кг"
             }
 

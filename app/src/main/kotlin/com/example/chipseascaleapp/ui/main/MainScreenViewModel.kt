@@ -7,14 +7,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.chipseascaleapp.algorithm.BodyCompositionCalculator
 import com.example.chipseascaleapp.ble.BleScaleScanner
 import com.example.chipseascaleapp.ble.BleScannerState
+import com.example.chipseascaleapp.ble.ScaleScanner
+import com.example.chipseascaleapp.data.ProfileRepository
 import com.example.chipseascaleapp.data.UserProfileRepository
 import com.example.chipseascaleapp.model.BodyComposition
 import com.example.chipseascaleapp.model.DeviceType
 import com.example.chipseascaleapp.model.ScaleMeasurement
 import com.example.chipseascaleapp.model.UserProfile
 import com.example.chipseascaleapp.model.WeightUnit
-import com.example.chipseascaleapp.ble.ScaleScanner
-import com.example.chipseascaleapp.data.ProfileRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 data class MainUiState(
     val isScanning: Boolean = false,
     val isBluetoothEnabled: Boolean = true,
+    val isLocationEnabled: Boolean = true,
     val hasPermissions: Boolean = false,
     val scaleMeasurement: ScaleMeasurement? = null,
     val bodyComposition: BodyComposition? = null,
@@ -41,6 +42,7 @@ class MainScreenViewModel(
         MainUiState(
             hasPermissions = scanner.hasRequiredPermissions(),
             isBluetoothEnabled = scanner.isBluetoothEnabled(),
+            isLocationEnabled = scanner.isLocationEnabled(),
             userProfile = userProfileRepository.userProfile.value
         )
     )
@@ -78,13 +80,29 @@ class MainScreenViewModel(
             scanner.scannerState.collect { state ->
                 when (state) {
                     is BleScannerState.Idle -> {
-                        _uiState.update { it.copy(isScanning = false) }
+                        _uiState.update {
+                            it.copy(
+                                isScanning = false,
+                                isBluetoothEnabled = scanner.isBluetoothEnabled(),
+                                isLocationEnabled = scanner.isLocationEnabled()
+                            )
+                        }
                     }
                     is BleScannerState.Scanning -> {
-                        _uiState.update { it.copy(isScanning = true, errorMessage = null) }
+                        _uiState.update {
+                            it.copy(
+                                isScanning = true,
+                                errorMessage = null,
+                                isBluetoothEnabled = true,
+                                isLocationEnabled = true
+                            )
+                        }
                     }
                     is BleScannerState.BluetoothDisabled -> {
                         _uiState.update { it.copy(isScanning = false, isBluetoothEnabled = false) }
+                    }
+                    is BleScannerState.LocationDisabled -> {
+                        _uiState.update { it.copy(isScanning = false, isLocationEnabled = false) }
                     }
                     is BleScannerState.MissingPermissions -> {
                         _uiState.update { it.copy(isScanning = false, hasPermissions = false) }
@@ -97,11 +115,28 @@ class MainScreenViewModel(
         }
     }
 
+    fun refreshDeviceState() {
+        _uiState.update {
+            it.copy(
+                hasPermissions = scanner.hasRequiredPermissions(),
+                isBluetoothEnabled = scanner.isBluetoothEnabled(),
+                isLocationEnabled = scanner.isLocationEnabled()
+            )
+        }
+    }
+
     fun startScan() {
         val hasPerms = scanner.hasRequiredPermissions()
         val btEnabled = scanner.isBluetoothEnabled()
-        _uiState.update { it.copy(hasPermissions = hasPerms, isBluetoothEnabled = btEnabled) }
-        if (hasPerms && btEnabled) {
+        val locEnabled = scanner.isLocationEnabled()
+        _uiState.update {
+            it.copy(
+                hasPermissions = hasPerms,
+                isBluetoothEnabled = btEnabled,
+                isLocationEnabled = locEnabled
+            )
+        }
+        if (hasPerms && btEnabled && locEnabled) {
             scanner.startScan()
         }
     }
@@ -125,12 +160,19 @@ class MainScreenViewModel(
         _uiState.update { it.copy(scaleMeasurement = null, bodyComposition = null, isDemoMode = false) }
     }
 
-    fun injectDemoMeasurement(isStabilized: Boolean = true, weightKg: Float = 77.10f, impedanceOhm: Float = 600.0f) {
+    fun injectDemoMeasurement(
+        isStabilized: Boolean = true,
+        weightKg: Float = 77.10f,
+        impedanceOhm: Float = 600.0f,
+        unit: WeightUnit = WeightUnit.KG
+    ) {
+        val displayWeight = if (unit == WeightUnit.LB) weightKg / 0.45359237f else weightKg
         val demoMeasurement = ScaleMeasurement(
             weightKg = weightKg,
+            displayWeight = displayWeight,
             impedanceOhm = impedanceOhm,
             isStabilized = isStabilized,
-            unit = WeightUnit.KG,
+            unit = unit,
             deviceType = DeviceType.BODY_FAT_SCALE,
             sequenceIndex = 42,
             productId = 0x0A11,
@@ -143,6 +185,9 @@ class MainScreenViewModel(
     override fun onCleared() {
         super.onCleared()
         scanner.stopScan()
+        if (scanner is BleScaleScanner) {
+            scanner.unregisterStateReceiver()
+        }
     }
 
     companion object {

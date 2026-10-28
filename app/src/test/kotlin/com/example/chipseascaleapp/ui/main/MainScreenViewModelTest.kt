@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -60,6 +59,7 @@ class MainScreenViewModelTest {
         val state = viewModel.uiState.value
         assertTrue(state.hasPermissions)
         assertTrue(state.isBluetoothEnabled)
+        assertTrue(state.isLocationEnabled)
         assertFalse(state.isScanning)
         assertNull(state.scaleMeasurement)
         assertEquals(180f, state.userProfile.heightCm, 0.01f)
@@ -72,6 +72,7 @@ class MainScreenViewModelTest {
 
         val sample = ScaleMeasurement(
             weightKg = 77.10f,
+            displayWeight = 77.10f,
             impedanceOhm = 600.0f,
             isStabilized = true,
             unit = WeightUnit.KG,
@@ -98,12 +99,37 @@ class MainScreenViewModelTest {
     }
 
     @Test
+    fun injectDemoMeasurement_supportsLbUnitProperly() = runTest(testDispatcher) {
+        val viewModel = MainScreenViewModel(fakeScanner, fakeRepo)
+        advanceUntilIdle()
+
+        // Inject 77.10 kg in LB
+        viewModel.injectDemoMeasurement(
+            isStabilized = true,
+            weightKg = 77.10f,
+            impedanceOhm = 600.0f,
+            unit = WeightUnit.LB
+        )
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        val m = state.scaleMeasurement
+        assertNotNull(m)
+        assertEquals(WeightUnit.LB, m!!.unit)
+        assertEquals(77.10f, m.weightKg, 0.01f)
+        assertEquals(169.98f, m.displayWeight, 0.1f)
+        // BMI is still based on 77.10 kg (not 169.98!)
+        assertEquals(23.8f, state.bodyComposition!!.bmi, 0.1f)
+    }
+
+    @Test
     fun updateUserProfile_recalculatesBodyComposition() = runTest(testDispatcher) {
         val viewModel = MainScreenViewModel(fakeScanner, fakeRepo)
         advanceUntilIdle()
 
         val sample = ScaleMeasurement(
             weightKg = 80.0f,
+            displayWeight = 80.0f,
             impedanceOhm = 550.0f,
             isStabilized = true,
             unit = WeightUnit.KG,
@@ -143,6 +169,22 @@ class MainScreenViewModelTest {
     }
 
     @Test
+    fun scannerState_handlesBluetoothAndLocationDisabled() = runTest(testDispatcher) {
+        val viewModel = MainScreenViewModel(fakeScanner, fakeRepo)
+        advanceUntilIdle()
+
+        fakeScanner.setScannerState(BleScannerState.BluetoothDisabled)
+        advanceUntilIdle()
+        assertFalse(viewModel.uiState.value.isBluetoothEnabled)
+        assertFalse(viewModel.uiState.value.isScanning)
+
+        fakeScanner.setScannerState(BleScannerState.LocationDisabled)
+        advanceUntilIdle()
+        assertFalse(viewModel.uiState.value.isLocationEnabled)
+        assertFalse(viewModel.uiState.value.isScanning)
+    }
+
+    @Test
     fun clearMeasurement_resetsMeasurementData() = runTest(testDispatcher) {
         val viewModel = MainScreenViewModel(fakeScanner, fakeRepo)
         advanceUntilIdle()
@@ -166,9 +208,16 @@ private class FakeScaleScanner : ScaleScanner {
     override val measurements: SharedFlow<ScaleMeasurement> = _measurements.asSharedFlow()
 
     var isScanningActive = false
+    var fakeBluetoothEnabled = true
+    var fakeLocationEnabled = true
 
     override fun hasRequiredPermissions(): Boolean = true
-    override fun isBluetoothEnabled(): Boolean = true
+    override fun isBluetoothEnabled(): Boolean = fakeBluetoothEnabled
+    override fun isLocationEnabled(): Boolean = fakeLocationEnabled
+
+    fun setScannerState(state: BleScannerState) {
+        _scannerState.value = state
+    }
 
     override fun startScan() {
         isScanningActive = true

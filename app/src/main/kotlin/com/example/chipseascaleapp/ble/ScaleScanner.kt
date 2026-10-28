@@ -9,6 +9,7 @@ interface ScaleScanner {
     val measurements: SharedFlow<ScaleMeasurement>
     fun hasRequiredPermissions(): Boolean
     fun isBluetoothEnabled(): Boolean
+    fun isLocationEnabled(): Boolean = true
     fun startScan()
     fun stopScan()
     fun injectMeasurementForTesting(measurement: ScaleMeasurement)

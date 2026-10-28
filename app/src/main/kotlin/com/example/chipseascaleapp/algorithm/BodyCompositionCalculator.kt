@@ -50,14 +50,16 @@ object BodyCompositionCalculator {
                 }
             }
 
-            // Sanitize values within physically realistic bounds
-            val clampedFatMass = rawFatMass.coerceIn(0.5f, weightKg * 0.85f)
-            val calculatedFatRate = ((clampedFatMass / weightKg) * 100.0f).coerceIn(3.0f, 65.0f)
-            val calculatedLeanMass = (weightKg - clampedFatMass).coerceAtLeast(0f)
+            // Exactly as implemented in OKOK CsAlgoBuilder:
+            // Calculate raw BFR (%), clamp between 5.0% and 55.0%, then derive fat mass and lean mass.
+            val rawBfr = (rawFatMass / weightKg) * 100.0f
+            val clampedFatRate = rawBfr.coerceIn(5.0f, 55.0f)
+            val calculatedFatMass = (clampedFatRate * weightKg) / 100.0f
+            val calculatedLeanMass = (weightKg - calculatedFatMass).coerceAtLeast(0f)
 
             Triple(
-                roundToOneDecimal(clampedFatMass),
-                roundToOneDecimal(calculatedFatRate),
+                roundToOneDecimal(calculatedFatMass),
+                roundToOneDecimal(clampedFatRate),
                 roundToOneDecimal(calculatedLeanMass)
             )
         } else {

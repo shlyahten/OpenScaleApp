@@ -158,7 +158,7 @@ fun UserProfileCard(
                         )
                     }
                     Slider(
-                        value = heightCm,
+                        value = heightCm.coerceIn(120f, 220f),
                         onValueChange = { heightCm = it.roundToInt().toFloat() },
                         valueRange = 120f..220f,
                         steps = 99
@@ -177,7 +177,7 @@ fun UserProfileCard(
                         )
                     }
                     Slider(
-                        value = ageYears.toFloat(),
+                        value = ageYears.toFloat().coerceIn(12f, 100f),
                         onValueChange = { ageYears = it.roundToInt() },
                         valueRange = 12f..100f,
                         steps = 87

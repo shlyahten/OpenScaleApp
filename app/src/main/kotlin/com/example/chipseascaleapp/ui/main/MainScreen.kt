@@ -35,6 +35,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chipseascaleapp.R
@@ -58,6 +61,7 @@ fun MainScreen(
     viewModel: MainScreenViewModel = viewModel(factory = MainScreenViewModel.provideFactory(LocalContext.current))
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
@@ -74,8 +78,28 @@ fun MainScreen(
         }
     }
 
-    DisposableEffect(Unit) {
+    // Lifecycle observer to stop scanning in background and resume on return
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> {
+                    viewModel.refreshDeviceState()
+                    if (viewModel.uiState.value.hasPermissions &&
+                        viewModel.uiState.value.isBluetoothEnabled &&
+                        viewModel.uiState.value.isLocationEnabled
+                    ) {
+                        viewModel.startScan()
+                    }
+                }
+                Lifecycle.Event.ON_STOP -> {
+                    viewModel.stopScan()
+                }
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
             viewModel.stopScan()
         }
     }
@@ -89,7 +113,10 @@ fun MainScreen(
         onStopScan = { viewModel.stopScan() },
         onSaveProfile = { viewModel.updateUserProfile(it) },
         onInjectDemo = { stabilized ->
-            viewModel.injectDemoMeasurement(isStabilized = stabilized)
+            viewModel.injectDemoMeasurement(isStabilized = stabilized, unit = WeightUnit.KG)
+        },
+        onInjectDemoLb = {
+            viewModel.injectDemoMeasurement(isStabilized = true, unit = WeightUnit.LB)
         },
         onClear = { viewModel.clearMeasurement() },
         modifier = modifier
@@ -105,6 +132,7 @@ fun MainScreenContent(
     onStopScan: () -> Unit,
     onSaveProfile: (UserProfile) -> Unit,
     onInjectDemo: (stabilized: Boolean) -> Unit,
+    onInjectDemoLb: () -> Unit,
     onClear: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -164,6 +192,7 @@ fun MainScreenContent(
             BleStatusCard(
                 hasPermissions = uiState.hasPermissions,
                 isBluetoothEnabled = uiState.isBluetoothEnabled,
+                isLocationEnabled = uiState.isLocationEnabled,
                 errorMessage = uiState.errorMessage,
                 isScanning = uiState.isScanning,
                 isDemoMode = uiState.isDemoMode,
@@ -171,6 +200,7 @@ fun MainScreenContent(
                 onStartScan = onStartScan,
                 onStopScan = onStopScan,
                 onInjectDemo = onInjectDemo,
+                onInjectDemoLb = onInjectDemoLb,
                 onClear = onClear
             )
         }
@@ -183,6 +213,7 @@ fun MainScreenContentPreview() {
     ChipseaScaleAppTheme {
         val sampleMeasurement = ScaleMeasurement(
             weightKg = 77.10f,
+            displayWeight = 77.10f,
             impedanceOhm = 600.0f,
             isStabilized = true,
             unit = WeightUnit.KG,
@@ -210,6 +241,7 @@ fun MainScreenContentPreview() {
             onStopScan = {},
             onSaveProfile = {},
             onInjectDemo = {},
+            onInjectDemoLb = {},
             onClear = {}
         )
     }

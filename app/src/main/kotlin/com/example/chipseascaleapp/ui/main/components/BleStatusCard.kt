@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 fun BleStatusCard(
     hasPermissions: Boolean,
     isBluetoothEnabled: Boolean,
+    isLocationEnabled: Boolean,
     errorMessage: String?,
     isScanning: Boolean,
     isDemoMode: Boolean,
@@ -43,6 +44,7 @@ fun BleStatusCard(
     onStartScan: () -> Unit,
     onStopScan: () -> Unit,
     onInjectDemo: (stabilized: Boolean) -> Unit,
+    onInjectDemoLb: () -> Unit = {},
     onClear: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -142,7 +144,53 @@ fun BleStatusCard(
             }
         }
 
-        // 3. Error Banner
+        // 3. Location Services Disabled Banner (for Android BLE scanning discovery)
+        if (hasPermissions && isBluetoothEnabled && !isLocationEnabled) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFFFF8E1)
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = null,
+                            tint = Color(0xFFF57F17)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Службы геолокации выключены",
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFF57F17)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = "Для работы BLE-сканирования на Android требуется включить геолокацию (GPS) в настройках системы.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color(0xFF4E342E)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(
+                        onClick = {
+                            context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF57F17))
+                    ) {
+                        Text("Включить геолокацию")
+                    }
+                }
+            }
+        }
+
+        // 4. Error Banner
         if (errorMessage != null) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -170,7 +218,7 @@ fun BleStatusCard(
             }
         }
 
-        // 4. Scanner Controls & Demo Mode
+        // 5. Scanner Controls & Demo Mode
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
@@ -227,6 +275,13 @@ fun BleStatusCard(
                         modifier = Modifier.weight(1f)
                     ) {
                         Text("Фиксация", maxLines = 1)
+                    }
+
+                    OutlinedButton(
+                        onClick = onInjectDemoLb,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("LB тест", maxLines = 1)
                     }
 
                     OutlinedButton(

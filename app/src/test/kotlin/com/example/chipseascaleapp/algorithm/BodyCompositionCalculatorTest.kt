@@ -9,6 +9,7 @@ import com.example.chipseascaleapp.model.WeightUnit
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class BodyCompositionCalculatorTest {
@@ -48,6 +49,9 @@ class BodyCompositionCalculatorTest {
         // Expected Lean Mass: 77.1 - 17.1 = 60.0 kg
         assertNotNull(result.leanMassKg)
         assertEquals(60.0f, result.leanMassKg!!, 0.2f)
+
+        // Verify total mass consistency
+        assertEquals(measurement.weightKg, result.fatMassKg + result.leanMassKg, 0.2f)
     }
 
     @Test
@@ -85,6 +89,9 @@ class BodyCompositionCalculatorTest {
         // Expected Lean Mass: ~42.0 kg
         assertNotNull(result.leanMassKg)
         assertEquals(42.0f, result.leanMassKg!!, 0.2f)
+
+        // Verify total mass consistency
+        assertEquals(measurement.weightKg, result.fatMassKg + result.leanMassKg, 0.2f)
     }
 
     @Test
@@ -116,6 +123,37 @@ class BodyCompositionCalculatorTest {
         assertNull(result.bodyFatRate)
         assertNull(result.fatMassKg)
         assertNull(result.leanMassKg)
+    }
+
+    @Test
+    fun calculate_extremeImpedance_clampedWithinBounds() {
+        val measurementLow = ScaleMeasurement(
+            weightKg = 70.0f,
+            impedanceOhm = 10.0f, // extremely low
+            isStabilized = true,
+            unit = WeightUnit.KG,
+            deviceType = DeviceType.BODY_FAT_SCALE,
+            sequenceIndex = 1,
+            productId = 0x0A11,
+            macAddress = "80:F4:16:01:47:50"
+        )
+        val profile = UserProfile(gender = Gender.MALE, heightCm = 200f, ageYears = 18)
+
+        val resultLow = BodyCompositionCalculator.calculate(measurementLow, profile)
+        assertTrue(resultLow.bodyFatRate!! >= 5.0f)
+
+        val measurementHigh = ScaleMeasurement(
+            weightKg = 150.0f,
+            impedanceOhm = 2000.0f, // extremely high
+            isStabilized = true,
+            unit = WeightUnit.KG,
+            deviceType = DeviceType.BODY_FAT_SCALE,
+            sequenceIndex = 1,
+            productId = 0x0A11,
+            macAddress = "80:F4:16:01:47:50"
+        )
+        val resultHigh = BodyCompositionCalculator.calculate(measurementHigh, profile)
+        assertTrue(resultHigh.bodyFatRate!! <= 55.0f)
     }
 
     @Test

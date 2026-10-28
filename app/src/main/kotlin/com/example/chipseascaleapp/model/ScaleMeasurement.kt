@@ -15,6 +15,7 @@ enum class DeviceType {
 
 data class ScaleMeasurement(
     val weightKg: Float,
+    val displayWeight: Float = weightKg,
     val impedanceOhm: Float,
     val isStabilized: Boolean,
     val unit: WeightUnit,

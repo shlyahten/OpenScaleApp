@@ -51,6 +51,7 @@ class MainScreenTest {
           onStopScan = {},
           onSaveProfile = {},
           onInjectDemo = {},
+          onInjectDemoLb = {},
           onClear = {}
       )
     }
