@@ -1,6 +1,12 @@
 # OpenScaleApp ⚖️
 
+[![GitHub Release](https://img.shields.io/github/v/release/shlyahten/OpenScaleApp?color=0284c7)](https://github.com/shlyahten/OpenScaleApp/releases/latest)
+[![Download APK](https://img.shields.io/badge/Download-APK%20(v1.0.0)-16a34a?logo=android)](https://github.com/shlyahten/OpenScaleApp/releases/download/v1.0.0/OpenScaleApp-v1.0.0.apk)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+
 **OpenScaleApp** is a modern, privacy-first, open-source Android application for Bluetooth Low Energy (BLE) smart body fat scales powered by the **Chipsea / OKOK protocol**.
+
+📥 **[Download Latest APK (v1.0.0)](https://github.com/shlyahten/OpenScaleApp/releases/download/v1.0.0/OpenScaleApp-v1.0.0.apk)**
 
 ---
 
