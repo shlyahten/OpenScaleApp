@@ -5,10 +5,10 @@ plugins {
 }
 
 android {
-  namespace = "com.example.chipseascaleapp"
+  namespace = "com.openscaleapp"
   compileSdk = 37
   defaultConfig {
-    applicationId = "com.example.chipseascaleapp"
+    applicationId = "com.openscaleapp"
     minSdk = 24
     targetSdk = 37
     versionCode = 1
@@ -37,6 +37,10 @@ android {
       excludes += "/META-INF/{AL2.0,LGPL2.1}"
     }
   }
+
+  testOptions {
+    unitTests.isReturnDefaultValues = true
+  }
 }
 
 kotlin {
@@ -62,6 +66,7 @@ dependencies {
   implementation(libs.androidx.compose.ui.tooling.preview)
   implementation(libs.androidx.compose.material3)
   implementation("androidx.compose.material:material-icons-core")
+  implementation("androidx.compose.material:material-icons-extended")
   // Tooling
   debugImplementation(libs.androidx.compose.ui.tooling)
   // Instrumented tests
@@ -71,6 +76,7 @@ dependencies {
   // Local tests: jUnit, coroutines, Android runner
   testImplementation(libs.junit)
   testImplementation(libs.kotlinx.coroutines.test)
+  testImplementation("org.json:json:20240303")
 
   // Instrumented tests: jUnit rules and runners
   androidTestImplementation(libs.androidx.test.core)

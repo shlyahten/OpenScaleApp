@@ -1,0 +1,126 @@
+<resources>
+    <!-- App name -->
+    <string name="app_name">Умные весы</string>
+
+    <!-- Theme & Language Settings -->
+    <string name="theme_system">Системная</string>
+    <string name="theme_light">Светлая</string>
+    <string name="theme_dark">Темная</string>
+    <string name="theme_dialog_title">Выбор темы</string>
+
+    <string name="language_system">Системный (Авто)</string>
+    <string name="language_en">English</string>
+    <string name="language_ru">Русский</string>
+    <string name="language_dialog_title">Выбор языка</string>
+
+    <!-- Hero Card & Weigh-In Action -->
+    <string name="weigh_in_button">Взвешивание</string>
+    <string name="cancel_search">Отменить поиск</string>
+    <string name="status_ready">Готов к взвешиванию</string>
+    <string name="status_searching">Поиск весов… (%1$d с)</string>
+    <string name="status_measuring">Идет фиксация веса…</string>
+    <string name="status_completed">Взвешивание завершено</string>
+    <string name="hint_start">Нажмите «Взвешивание» и встаньте на весы</string>
+    <string name="hint_step_on">Встаньте на весы двумя босыми ногами</string>
+    <string name="hint_measuring">Идет фиксация веса, не двигайтесь…</string>
+    <string name="archived_record">Архивное взвешивание</string>
+    <string name="return_to_current">← Вернуться к текущему</string>
+    <string name="record_from_date">Запись от %1$s</string>
+    <string name="scale_type_body_fat">Весы-жироанализатор</string>
+    <string name="scale_type_standard">Обычные весы</string>
+    <string name="mac_label">MAC: %1$s</string>
+
+    <!-- Units -->
+    <string name="unit_kg">кг</string>
+    <string name="unit_lb">фунт</string>
+    <string name="unit_st">ст</string>
+    <string name="unit_bmi">кг/м²</string>
+    <string name="unit_percent">%</string>
+    <string name="unit_index">индекс</string>
+    <string name="unit_kcal">ккал</string>
+    <string name="unit_years">лет</string>
+    <string name="unit_ohm">Ом (Ω)</string>
+
+    <!-- Metric Section Headers -->
+    <string name="section_primary_metrics">Основные показатели</string>
+    <string name="section_fat">Жировая ткань</string>
+    <string name="section_muscle_bone">Мышцы и костная ткань</string>
+    <string name="section_water_protein">Вода, белок и метаболизм</string>
+    <string name="section_bioimpedance">Биоимпедансный контакт</string>
+
+    <!-- Metric Titles -->
+    <string name="metric_bmi">Индекс массы (ИМТ)</string>
+    <string name="metric_obesity_degree">Степень ожирения</string>
+    <string name="metric_body_fat">Процент жира</string>
+    <string name="metric_fat_mass">Масса жира</string>
+    <string name="metric_visceral_fat">Висцеральный жир</string>
+    <string name="metric_weight_without_fat">Вес без жира</string>
+    <string name="metric_skeletal_muscle_rate">Скелетные мышцы %</string>
+    <string name="metric_skeletal_muscle_mass">Скелетные мышцы</string>
+    <string name="metric_muscle_rate">Мышечная масса %</string>
+    <string name="metric_muscle_mass">Мышечная масса</string>
+    <string name="metric_bone_mass">Костная масса</string>
+    <string name="metric_water_rate">Вода в организме %</string>
+    <string name="metric_water_mass">Масса воды</string>
+    <string name="metric_protein_rate">Белок</string>
+    <string name="metric_bmr">Базальный метаболизм</string>
+    <string name="metric_body_age">Биологический возраст</string>
+    <string name="metric_impedance">Электрическое сопротивление (Импеданс Z)</string>
+    <string name="impedance_contact_detected">Контакт обнаружен</string>
+    <string name="impedance_step_barefoot">Встаньте босыми ногами</string>
+
+    <!-- Metric Statuses -->
+    <string name="status_low">Ниже нормы</string>
+    <string name="status_healthy">В норме</string>
+    <string name="status_perfect">Отлично</string>
+    <string name="status_high">Выше нормы</string>
+    <string name="status_overweight">Избыток</string>
+    <string name="status_alert">Опасно</string>
+
+    <!-- BMI Categories -->
+    <string name="bmi_underweight">Дефицит веса</string>
+    <string name="bmi_normal">Нормальный вес</string>
+    <string name="bmi_overweight">Избыточный вес</string>
+    <string name="bmi_obese">Ожирение</string>
+
+    <!-- History Section -->
+    <string name="history_title">История взвешиваний (%1$d)</string>
+    <string name="history_empty">Пока нет сохраненных записей. Нажмите «Взвешивание», чтобы провести первое измерение.</string>
+    <string name="history_clear_all">Очистить</string>
+    <string name="history_clear_dialog_title">Очистить историю?</string>
+    <string name="history_clear_dialog_message">Все сохраненные измерения будут безвозвратно удалены.</string>
+    <string name="history_delete_button">Удалить</string>
+    <string name="history_cancel_button">Отмена</string>
+    <string name="history_viewing_badge">Открыто</string>
+    <string name="history_today_at">Сегодня в %1$s</string>
+    <string name="history_yesterday_at">Вчера в %1$s</string>
+    <string name="history_delete_item_content_desc">Удалить замер</string>
+
+    <!-- User Profile Section -->
+    <string name="profile_title">Профиль пользователя</string>
+    <string name="profile_edit">Изменить</string>
+    <string name="profile_gender">Пол</string>
+    <string name="profile_male">Мужской</string>
+    <string name="profile_female">Женский</string>
+    <string name="profile_height">Рост</string>
+    <string name="profile_age">Возраст</string>
+    <string name="profile_dialog_title">Редактировать профиль</string>
+    <string name="profile_save">Сохранить</string>
+    <string name="profile_height_label">Рост (см)</string>
+    <string name="profile_age_label">Возраст (лет)</string>
+    <string name="profile_years_format">%1$d лет</string>
+
+    <!-- Diagnostics and Testing Tools -->
+    <string name="diagnostics_title">Инструменты тестирования</string>
+    <string name="diagnostics_expand">Развернуть</string>
+    <string name="diagnostics_collapse">Свернуть</string>
+    <string name="error_scan_timeout">Весы не найдены за 30 сек. Встаньте на весы и нажмите «Взвешивание» снова.</string>
+    <string name="error_bluetooth_disabled">Bluetooth выключен. Включите Bluetooth.</string>
+    <string name="error_location_disabled">Службы геолокации отключены. Включите определение местоположения.</string>
+    <string name="error_permissions_required">Требуются разрешения Bluetooth и геолокации</string>
+    <string name="action_grant_permissions">Предоставить разрешения</string>
+    <string name="demo_inject_measuring">Эмулировать кг (в процессе)</string>
+    <string name="demo_inject_stabilized">Эмулировать кг (стабилизирован)</string>
+    <string name="demo_inject_lb">Эмулировать фунты (LB)</string>
+    <string name="action_clear_measurement">Сбросить замер</string>
+</resources>

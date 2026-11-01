@@ -1,3 +1,126 @@
 <resources>
-    <string name="app_name">Умные весы</string>
+    <!-- App name -->
+    <string name="app_name">OpenScale</string>
+
+    <!-- Theme & Language Settings -->
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_dialog_title">Select Theme</string>
+
+    <string name="language_system">System (Auto)</string>
+    <string name="language_en">English</string>
+    <string name="language_ru">Русский</string>
+    <string name="language_dialog_title">Select Language</string>
+
+    <!-- Hero Card & Weigh-In Action -->
+    <string name="weigh_in_button">Start Weigh-in</string>
+    <string name="cancel_search">Cancel search</string>
+    <string name="status_ready">Ready to weigh</string>
+    <string name="status_searching">Searching for scales… (%1$d s)</string>
+    <string name="status_measuring">Locking weight…</string>
+    <string name="status_completed">Measurement complete</string>
+    <string name="hint_start">Tap “Start Weigh-in” and step on the scale</string>
+    <string name="hint_step_on">Step on the scale with bare feet</string>
+    <string name="hint_measuring">Stabilizing weight, please stand still…</string>
+    <string name="archived_record">Historical Record</string>
+    <string name="return_to_current">← Return to current</string>
+    <string name="record_from_date">Record from %1$s</string>
+    <string name="scale_type_body_fat">Body Fat Scale</string>
+    <string name="scale_type_standard">Standard Scale</string>
+    <string name="mac_label">MAC: %1$s</string>
+
+    <!-- Units -->
+    <string name="unit_kg">kg</string>
+    <string name="unit_lb">lb</string>
+    <string name="unit_st">st</string>
+    <string name="unit_bmi">kg/m²</string>
+    <string name="unit_percent">%</string>
+    <string name="unit_index">index</string>
+    <string name="unit_kcal">kcal</string>
+    <string name="unit_years">y</string>
+    <string name="unit_ohm">Ω</string>
+
+    <!-- Metric Section Headers -->
+    <string name="section_primary_metrics">Primary Metrics</string>
+    <string name="section_fat">Fat Mass &amp; Percentage</string>
+    <string name="section_muscle_bone">Muscle &amp; Bone Mass</string>
+    <string name="section_water_protein">Water, Protein &amp; Metabolism</string>
+    <string name="section_bioimpedance">Bioimpedance Contact</string>
+
+    <!-- Metric Titles -->
+    <string name="metric_bmi">Body Mass Index (BMI)</string>
+    <string name="metric_obesity_degree">Obesity Degree</string>
+    <string name="metric_body_fat">Body Fat %</string>
+    <string name="metric_fat_mass">Body Fat Weight</string>
+    <string name="metric_visceral_fat">Visceral Fat</string>
+    <string name="metric_weight_without_fat">Weight Without Fat</string>
+    <string name="metric_skeletal_muscle_rate">Skeletal Muscle %</string>
+    <string name="metric_skeletal_muscle_mass">Skeletal Muscle Weight</string>
+    <string name="metric_muscle_rate">Muscle Mass %</string>
+    <string name="metric_muscle_mass">Muscle Mass</string>
+    <string name="metric_bone_mass">Bone Mass</string>
+    <string name="metric_water_rate">Body Water %</string>
+    <string name="metric_water_mass">Water Mass</string>
+    <string name="metric_protein_rate">Protein %</string>
+    <string name="metric_bmr">Basal Metabolism</string>
+    <string name="metric_body_age">Metabolic Age</string>
+    <string name="metric_impedance">Resistance (Impedance Z)</string>
+    <string name="impedance_contact_detected">Contact detected</string>
+    <string name="impedance_step_barefoot">Step on with bare feet</string>
+
+    <!-- Metric Statuses -->
+    <string name="status_low">Low</string>
+    <string name="status_healthy">Normal</string>
+    <string name="status_perfect">Optimal</string>
+    <string name="status_high">High</string>
+    <string name="status_overweight">Overweight</string>
+    <string name="status_alert">Alert</string>
+
+    <!-- BMI Categories -->
+    <string name="bmi_underweight">Underweight</string>
+    <string name="bmi_normal">Normal weight</string>
+    <string name="bmi_overweight">Overweight</string>
+    <string name="bmi_obese">Obese</string>
+
+    <!-- History Section -->
+    <string name="history_title">Weigh-in History (%1$d)</string>
+    <string name="history_empty">No saved records yet. Tap “Start Weigh-in” to take your first measurement.</string>
+    <string name="history_clear_all">Clear all</string>
+    <string name="history_clear_dialog_title">Clear history?</string>
+    <string name="history_clear_dialog_message">All saved measurements will be permanently deleted.</string>
+    <string name="history_delete_button">Delete</string>
+    <string name="history_cancel_button">Cancel</string>
+    <string name="history_viewing_badge">Viewing</string>
+    <string name="history_today_at">Today at %1$s</string>
+    <string name="history_yesterday_at">Yesterday at %1$s</string>
+    <string name="history_delete_item_content_desc">Delete measurement</string>
+
+    <!-- User Profile Section -->
+    <string name="profile_title">User Profile</string>
+    <string name="profile_edit">Edit</string>
+    <string name="profile_gender">Gender</string>
+    <string name="profile_male">Male</string>
+    <string name="profile_female">Female</string>
+    <string name="profile_height">Height</string>
+    <string name="profile_age">Age</string>
+    <string name="profile_dialog_title">Edit Profile</string>
+    <string name="profile_save">Save</string>
+    <string name="profile_height_label">Height (cm)</string>
+    <string name="profile_age_label">Age (years)</string>
+    <string name="profile_years_format">%1$d years</string>
+
+    <!-- Diagnostics and Testing Tools -->
+    <string name="diagnostics_title">Testing Tools</string>
+    <string name="diagnostics_expand">Expand</string>
+    <string name="diagnostics_collapse">Collapse</string>
+    <string name="error_scan_timeout">Scales not found within 30 sec. Step on scales and tap “Start Weigh-in” again.</string>
+    <string name="error_bluetooth_disabled">Bluetooth is disabled. Please enable Bluetooth.</string>
+    <string name="error_location_disabled">Location services disabled. Please enable location.</string>
+    <string name="error_permissions_required">Bluetooth &amp; Location permissions required</string>
+    <string name="action_grant_permissions">Grant permissions</string>
+    <string name="demo_inject_measuring">Simulate kg (measuring)</string>
+    <string name="demo_inject_stabilized">Simulate kg (locked)</string>
+    <string name="demo_inject_lb">Simulate lb</string>
+    <string name="action_clear_measurement">Clear measurement</string>
 </resources>
