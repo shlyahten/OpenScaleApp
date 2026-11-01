@@ -4,6 +4,18 @@
 
 ---
 
+## 📱 Screenshots
+
+<div align="center">
+
+| 1. Ready to Weigh | 2. Active Weigh-In | 3. Locked Metrics | 4. Full Body Composition | 5. History & Profile |
+|:---:|:---:|:---:|:---:|:---:|
+| <img src="docs/screenshots/01_ready_to_weigh.png" width="190" alt="Ready to Weigh" /> | <img src="docs/screenshots/02_scanning_active.png" width="190" alt="Active Weigh-In" /> | <img src="docs/screenshots/03_metrics_locked.png" width="190" alt="Locked Metrics" /> | <img src="docs/screenshots/04_body_composition.png" width="190" alt="Full Body Composition" /> | <img src="docs/screenshots/05_history_and_profile.png" width="190" alt="History and Profile" /> |
+
+</div>
+
+---
+
 ## 🌟 Key Features
 
 * **⚡ Smart 1-Tap Weigh-In**:
